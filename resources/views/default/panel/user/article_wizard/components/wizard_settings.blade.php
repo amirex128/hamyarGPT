@@ -64,6 +64,8 @@
                     class="flex flex-col gap-5"
                     id="article_wizard_setting_form"
                 >
+                    @includeIf('panel.user.article_wizard.components.serper_seo_aw_keyword')
+
                     <x-forms.input
                         id="txtforkeyword"
                         size="lg"
@@ -324,6 +326,25 @@
 
                 </form>
             </x-card>
+
+            {{-- search questions --}}
+            <x-card
+                class="hidden group-[:not([data-step='2'])]/article-wizard:hidden"
+                id="search_questions_card"
+            >
+                <h1 class="form-label mb-4">{{ __('Search Questions:') }}</h1>
+
+                <textarea
+                    class="w-full"
+                    id="search_questions"
+                    label="{{ __('Search Questions') }}"
+                    @readonly(true)
+                    placeholder="{{ __('Search Questions') }}"
+                    name="search_questions"
+                    rows="5"
+                ></textarea>
+            </x-card>
+
         </div>
     </div>
 

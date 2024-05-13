@@ -296,8 +296,14 @@ class PayPalService
             $user->save();
 
             createActivity($user->id, __('Subscribed'), $plan->name.' '.__('Plan'), null);
+
 			\App\Models\Usage::getSingle()->updateSalesCount($total);
+
             DB::commit();
+
+            if (class_exists('App\Events\AffiliateEvent')) {
+                event(new \App\Events\AffiliateEvent($total, $gateway->currency));
+            }
 
             return ['result' => 'OK'];
         } catch (\Exception $ex) {

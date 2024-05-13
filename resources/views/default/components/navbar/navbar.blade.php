@@ -829,7 +829,7 @@
                                     label="{{ __('Gemini') }}"
                                     onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
                                     href="{{ $app_is_demo ? '#' : 'dashboard.admin.settings.gemini' }}"
-{{--                                    badge="{{ trans('Beta') }}"--}}
+                                    {{--                                    badge="{{ trans('Beta') }}" --}}
                                 >
                                 </x-navbar.dropdown.link>
                             </x-navbar.dropdown.item>
@@ -846,6 +846,22 @@
                                 <x-navbar.dropdown.link
                                     label="{{ __('Unsplash API') }}"
                                     href="dashboard.admin.settings.unsplashapi"
+                                >
+                                </x-navbar.dropdown.link>
+                            </x-navbar.dropdown.item>
+
+                            <x-navbar.dropdown.item>
+                                <x-navbar.dropdown.link
+                                    label="{{ __('Pexels API') }}"
+                                    href="dashboard.admin.settings.pexelsapi"
+                                >
+                                </x-navbar.dropdown.link>
+                            </x-navbar.dropdown.item>
+
+                            <x-navbar.dropdown.item>
+                                <x-navbar.dropdown.link
+                                    label="{{ __('Pixabay API') }}"
+                                    href="dashboard.admin.settings.pixabayapi"
                                 >
                                 </x-navbar.dropdown.link>
                             </x-navbar.dropdown.item>

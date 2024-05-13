@@ -12,6 +12,10 @@ export default {
 	darkMode: [ 'class', '.theme-dark' ],
 	theme: {
 		extend: {
+			backdropFilter: {
+				'none': 'none',
+				'blur': 'blur(16px)',
+			},
 			container: {
 				center: true,
 				padding: '1rem',
@@ -21,7 +25,7 @@ export default {
 				md: '768px',
 				lg: '992px',
 				xl: '1200px',
-				'2xl': '1320px',
+				'2xl': '1520px',
 			},
 			borderRadius: {
 				input: '0.625rem', // 10px

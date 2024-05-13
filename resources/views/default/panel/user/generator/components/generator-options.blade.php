@@ -85,6 +85,37 @@
                 </x-forms.input>
             </div>
         </div>
+
+        <div
+            class="flex w-full flex-col gap-5"
+            x-data="{ 'bulkEnabled': false }"
+        >
+            <x-forms.input
+                id="bulk"
+                type="checkbox"
+                name="bulk"
+                label="{{ __('Generate Bulk Posts') }}"
+                @change="bulkEnabled = $el.checked"
+                switcher
+            />
+
+            <div
+                class="hidden w-full flex-col gap-5"
+                :class="{ 'hidden': !bulkEnabled, 'flex': bulkEnabled }"
+            >
+                <x-forms.input
+                    class:container="w-full"
+                    id="number_of_results"
+                    label="{{ __('Number of Results') }}"
+                    type="number"
+                    name="number_of_results"
+                    value="1"
+                    size="lg"
+                    placeholder="{{ __('Number of results') }}"
+                    required
+                />
+            </div>
+        </div>
         @foreach (json_decode($openai->questions) ?? [] as $question)
             <div class="w-full">
                 @php
@@ -175,6 +206,7 @@
             </x-forms.input>
 
             <x-forms.input
+                class:container="w-full md:w-[48%]"
                 id="language"
                 label="{{ __('Language') }}"
                 name="language"
@@ -212,17 +244,7 @@
                     size="lg"
                 />
             @endif
-            <x-forms.input
-                class:container="w-full md:w-[48%]"
-                id="number_of_results"
-                label="{{ __('Number of Results') }}"
-                type="number"
-                name="number_of_results"
-                value="1"
-                size="lg"
-                placeholder="{{ __('Number of results') }}"
-                required
-            />
+
             @if (setting('hide_creativity_option') != 1)
                 <x-forms.input
                     class:container="w-full md:w-[48%]"

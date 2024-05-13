@@ -32,9 +32,10 @@ function editWorkbook(workbook_slug) {
 	return false;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
 	'use strict';
 
+	const md = window.markdownit();
 	const tinymceOptions = {
 		selector: '.tinymce',
 		height: 543,
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		toolbar: 'styles | magicIconRewrite | magicAIButton | image | link | forecolor backcolor emoticons | bold italic underline  | bullist numlist | alignleft aligncenter alignright | code supercode',
 		content_css: `${window.liquid.assetsPath}/css/tinymce-theme.css`,
 		directionality: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
+		forced_root_block: 'div',
 		supercode: {
 			renderer: (markdownCode) => {
 				return window.markdownit().render(markdownCode);
@@ -336,7 +338,13 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	};
 
-	tinyMCE.init(tinymceOptions);
+	const editors = await tinyMCE.init(tinymceOptions);
+	const editor = editors[0];
+
+	// targetElm is a textarea
+	if ( editor?.targetElm ) {
+		tinyMCE.activeEditor.setContent( md.render(md.utils.unescapeAll(editor.targetElm.value.replace(/<div>|<\/div>/g, '').replace(/<br>|<br\/>/g, '\n'))) );
+	}
 
 	$('body').on('click', '#workbook_regenerate', () => {
 		sendOpenaiGeneratorForm();

@@ -9,6 +9,7 @@ use App\Models\OpenAIGenerator;
 use App\Models\PrivacyTerms;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -75,7 +76,12 @@ class SettingsController extends Controller
 
                 setting([
                     'chat_setting_for_customer' => $request->chat_setting_for_customer,
-                    'default_ai_engine' => $request->default_ai_engine
+                    'default_ai_engine' => $request->default_ai_engine,
+                ])->save();
+            }
+            if ($request->has('default_aw_image_engine')) {
+                setting([
+                    'default_aw_image_engine' => $request->default_aw_image_engine,
                 ])->save();
             }
 
@@ -116,7 +122,7 @@ class SettingsController extends Controller
             $settings->mobile_payment_active = $request->mobile_payment_active ?? 0;
             $settings->save();
 
-			setting(['user_prompt_library' => $request->user_prompt_library])->save();
+            setting(['user_prompt_library' => $request->user_prompt_library])->save();
 
             $this->toggleOpenaiTemplateStatus($settings);
 
@@ -218,16 +224,14 @@ class SettingsController extends Controller
         }
     }
 
-
     public function anthropic(Request $request)
     {
         if (Helper::appIsDemo()) {
             return to_route('dashboard.user.index')->with([
                 'status' => 'error',
-                'message' => trans('This feature is disabled in demo mode.')
+                'message' => trans('This feature is disabled in demo mode.'),
             ]);
         }
-
 
         return view('panel.admin.settings.anthropic');
     }
@@ -237,32 +241,30 @@ class SettingsController extends Controller
         if (Helper::appIsDemo()) {
             return to_route('dashboard.user.index')->with([
                 'status' => 'error',
-                'message' => trans('This feature is disabled in demo mode.')
+                'message' => trans('This feature is disabled in demo mode.'),
             ]);
         }
 
         $token = setting('anthropic_api_secret');
 
-
         $explodeToken = explode(',', $token);
-
 
         $randomToken = Arr::random($explodeToken);
 
         $request = Http::withHeaders([
-           'x-api-key' => $randomToken,
+            'x-api-key' => $randomToken,
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'anthropic-version' => '2023-06-01'
+            'anthropic-version' => '2023-06-01',
         ])->post('https://api.anthropic.com/v1/messages', [
             'model' => setting('anthropic_default_model'),
             'max_tokens' => (int) setting('anthropic_max_output_length'),
             'messages' => [
                 [
                     'role' => 'user',
-                    'content' => 'Hello, how are you?'
-                ]
-            ]
+                    'content' => 'Hello, how are you?',
+                ],
+            ],
         ]);
 
         if ($request->ok()) {
@@ -286,58 +288,60 @@ class SettingsController extends Controller
         return response()->json([], 200);
     }
 
-	public function gemini(Request $request)
+    public function gemini(Request $request)
     {
         if (Helper::appIsDemo()) {
             return to_route('dashboard.user.index')->with([
                 'status' => 'error',
-                'message' => trans('This feature is disabled in demo mode.')
+                'message' => trans('This feature is disabled in demo mode.'),
             ]);
         }
+
         return view('panel.admin.settings.gemini');
     }
+
     public function geminiTest()
     {
         if (Helper::appIsDemo()) {
             return to_route('dashboard.user.index')->with([
                 'status' => 'error',
-                'message' => trans('This feature is disabled in demo mode.')
+                'message' => trans('This feature is disabled in demo mode.'),
             ]);
         }
 
-		$newhistory = [
-			[
-				"role" => "user",
-				"parts" => [
-					[
-						"text" => "who are u."
-					]
-				]
-			]
-		];
+        $newhistory = [
+            [
+                'role' => 'user',
+                'parts' => [
+                    [
+                        'text' => 'who are u.',
+                    ],
+                ],
+            ],
+        ];
 
-
-		$randomToken = Helper::setGeminiKey();
-		$client = app(\App\Services\Ai\Gemini::class);
-		$response = $client
-		->setHistory($newhistory)
-		->generateContent();
-		if ($response->ok()) {
-			echo ' <br>'.$randomToken.' - SUCCESS <br>';
-		} else {
-			echo $response->json('error.message').' -FAILED <br>';
-		}
+        $randomToken = Helper::setGeminiKey();
+        $client = app(\App\Services\Ai\Gemini::class);
+        $response = $client
+            ->setHistory($newhistory)
+            ->generateContent();
+        if ($response->ok()) {
+            echo ' <br>'.$randomToken.' - SUCCESS <br>';
+        } else {
+            echo $response->json('error.message').' -FAILED <br>';
+        }
     }
-	
+
     public function geminiSave(Request $request)
     {
         $data = $request->validate([
             'gemini_api_secret' => 'required|string',
             'gemini_default_model' => 'required|string',
-			'gemini_max_input_length' => 'required|string',
+            'gemini_max_input_length' => 'required|string',
             'gemini_max_output_length' => 'required|string',
         ]);
         setting($data)->save();
+
         return response()->json([], 200);
     }
 
@@ -346,7 +350,7 @@ class SettingsController extends Controller
         if (Helper::appIsDemo()) {
             return to_route('dashboard.user.index')->with([
                 'status' => 'error',
-                'message' => trans('This feature is disabled in demo mode.')
+                'message' => trans('This feature is disabled in demo mode.'),
             ]);
         }
 
@@ -360,9 +364,115 @@ class SettingsController extends Controller
 
     public function unsplashapi(Request $request)
     {
-        $token = '';
-
         return view('panel.admin.settings.unsplashapi');
+    }
+
+    public function unsplashapiTest()
+    {
+        $client = new Client();
+        $settings = SettingTwo::first();
+        if ($settings->unsplash_api_key == '') {
+            echo 'You must provide Unsplash API Key.';
+
+            return;
+        }
+
+        $apiKey = $settings->unsplash_api_key;
+
+        $client = new Client();
+
+        try {
+            $response = $client->get("https://api.unsplash.com/search/photos?query=Google&count=1&client_id=$apiKey");
+            echo ' <br>'.$apiKey.' - SUCCESS <br>';
+        } catch (\Exception $e) {
+            echo $e->getMessage().' - '.$apiKey.' -FAILED <br>';
+        }
+    }
+
+    public function unsplashapiSave(Request $request)
+    {
+        $settings = SettingTwo::first();
+        // TODO SETTINGS
+        if (Helper::appIsNotDemo()) {
+            $settings->unsplash_api_key = $request->unsplash_api_key;
+            $settings->save();
+        }
+
+        return response()->json([], 200);
+    }
+
+    public function pexelsapi(Request $request)
+    {
+        return view('panel.admin.settings.pexels');
+    }
+
+    public function pexelsapiTest()
+    {
+        $client = new Client();
+        $api = setting('pexels_api_key');
+        if ($api == '') {
+            echo 'You must provide Pexels API Key.';
+
+            return;
+        }
+
+        $apiKey = $api;
+
+        $client = new Client();
+
+        try {
+            $response = $client->get('https://api.pexels.com/v1/search?query=Google&per_page=1', [
+                'headers' => [
+                    'Authorization' => $apiKey,
+                ],
+            ]);
+            echo ' <br>'.$apiKey.' - SUCCESS <br>';
+        } catch (\Exception $e) {
+            echo $e->getMessage().' - '.$apiKey.' -FAILED <br>';
+        }
+    }
+
+    public function pexelsapiSave(Request $request)
+    {
+        if (Helper::appIsNotDemo()) {
+            setting(['pexels_api_key' => $request->pexels_api_key])->save();
+        }
+
+        return response()->json([], 200);
+    }
+
+    public function pixabayapi(Request $request)
+    {
+        return view('panel.admin.settings.pixabay');
+    }
+
+    public function pixabayapiTest()
+    {
+        $client = new Client();
+        $api = setting('pixabay_api_key');
+        if ($api == '') {
+            echo 'You must provide Pixabay API Key.';
+
+            return;
+        }
+
+        $apiKey = $api;
+        $client = new Client();
+        try {
+            $response = $client->get("https://pixabay.com/api/?key=$apiKey&q=Google");
+            echo ' <br>'.$apiKey.' - SUCCESS <br>';
+        } catch (\Exception $e) {
+            echo $e->getMessage().' - '.$apiKey.' -FAILED <br>';
+        }
+    }
+
+    public function pixabayapiSave(Request $request)
+    {
+        if (Helper::appIsNotDemo()) {
+            setting(['pixabay_api_key' => $request->pixabay_api_key])->save();
+        }
+
+        return response()->json([], 200);
     }
 
     public function serperapi(Request $request)
@@ -377,6 +487,15 @@ class SettingsController extends Controller
         if (Helper::appIsNotDemo()) {
             $settings->serper_api_key = $request->serper_api_key;
             $settings->save();
+
+            if ($request->hasAny(['serper_seo_aw_sq', 'serper_seo_aw_keyword', 'serper_seo_blog_title_desc', 'serper_seo_site_meta'])) {
+                setting([
+                    'serper_seo_aw_sq' => $request->serper_seo_aw_sq,
+                    'serper_seo_aw_keyword' => $request->serper_seo_aw_keyword,
+                    'serper_seo_blog_title_desc' => $request->serper_seo_blog_title_desc,
+                    'serper_seo_site_meta' => $request->serper_seo_site_meta,
+                ])->save();
+            }
         }
 
         return response()->json([], 200);
@@ -413,7 +532,7 @@ class SettingsController extends Controller
         if (Helper::appIsDemo()) {
             return to_route('dashboard.user.index')->with([
                 'status' => 'error',
-                'message' => trans('This feature is disabled in demo mode.')
+                'message' => trans('This feature is disabled in demo mode.'),
             ]);
         }
 
@@ -505,28 +624,6 @@ class SettingsController extends Controller
         }
     }
 
-    public function unsplashapiTest()
-    {
-        $client = new Client();
-        $settings = SettingTwo::first();
-        if ($settings->unsplash_api_key == '') {
-            echo 'You must provide Unsplash API Key.';
-
-            return;
-        }
-
-        $apiKey = $settings->unsplash_api_key;
-
-        $client = new Client();
-
-        try {
-            $response = $client->get("https://api.unsplash.com/search/photos?query=Google&count=1&client_id=$apiKey");
-            echo ' <br>'.$apiKey.' - SUCCESS <br>';
-        } catch (\Exception $e) {
-            echo $e->getMessage().' - '.$apiKey.' -FAILED <br>';
-        }
-    }
-
     public function openaiSave(Request $request)
     {
         $settings = Setting::first();
@@ -544,11 +641,24 @@ class SettingsController extends Controller
             $settings_two->openai_default_stream_server = $request->openai_default_stream_server;
             $settings->save();
             $settings_two->save();
-			setting([
-				'hide_creativity_option' => $request->hide_creativity_option, 
-				'hide_tone_of_voice_option' => $request->hide_tone_of_voice_option, 
-				'hide_output_length_option' => $request->hide_output_length_option
-			])->save();
+            setting([
+                'hide_creativity_option' => $request->hide_creativity_option,
+                'hide_tone_of_voice_option' => $request->hide_tone_of_voice_option,
+                'hide_output_length_option' => $request->hide_output_length_option,
+            ])->save();
+        }
+
+        return response()->json([], 200);
+    }
+
+    public function affiliateStatusSave($id, Request $request)
+    {
+        if (Helper::appIsNotDemo()) {
+            $user = User::find($id);
+            if ($user) {
+                $user->affiliate_status = $request->input('affiliate_status');
+                $user->save();
+            }
         }
 
         return response()->json([], 200);
@@ -564,41 +674,33 @@ class SettingsController extends Controller
             $settings->stablediffusion_default_model = $request->stablediffusion_default_model;
             $settings->save();
 
-			setting(['stable_hidden' => $request->stable_hidden])->save();
+            setting(['stable_hidden' => $request->stable_hidden])->save();
         }
 
         return response()->json([], 200);
     }
-	// thumbnail
-	public function thumbnail()
-	{
-		return view('panel.admin.settings.thumbnail');
-	}
-	// thumbnailSave
-	public function thumbnailSave(Request $request)
-	{
-		if (Helper::appIsNotDemo()) {
-		setting(['image_thumbnail' => $request->image_thumbnail])->save();
-		}
-		return response()->json([], 200);
-	}
-	// thumbnailPurge
-	public function thumbnailPurge()
-	{
-		if (Helper::appIsNotDemo()) {
-		PurgeThumbImages();	
-		}
-		return response()->json([], 200);
-	}
 
-
-    public function unsplashapiSave(Request $request)
+    // thumbnail
+    public function thumbnail()
     {
-        $settings = SettingTwo::first();
-        // TODO SETTINGS
+        return view('panel.admin.settings.thumbnail');
+    }
+
+    // thumbnailSave
+    public function thumbnailSave(Request $request)
+    {
         if (Helper::appIsNotDemo()) {
-            $settings->unsplash_api_key = $request->unsplash_api_key;
-            $settings->save();
+            setting(['image_thumbnail' => $request->image_thumbnail])->save();
+        }
+
+        return response()->json([], 200);
+    }
+
+    // thumbnailPurge
+    public function thumbnailPurge()
+    {
+        if (Helper::appIsNotDemo()) {
+            PurgeThumbImages();
         }
 
         return response()->json([], 200);
@@ -688,7 +790,9 @@ class SettingsController extends Controller
 
     public function affiliate()
     {
-        return view('panel.admin.settings.affiliate');
+        $users = User::query()->paginate(10);
+
+        return view('panel.admin.settings.affiliate', compact('users'));
     }
 
     public function affiliateSave(Request $request)

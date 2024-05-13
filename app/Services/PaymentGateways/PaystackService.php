@@ -342,6 +342,10 @@ class PaystackService
 				\App\Models\Usage::getSingle()->updateSalesCount($total);
                 DB::commit();
 
+                if (class_exists('App\Events\AffiliateEvent')) {
+                    event(new \App\Events\AffiliateEvent($total, $gateway->currency));
+                }
+
                 return redirect()->route('dashboard.'.auth()->user()->type.'.index')->with(['message' => __('Thank you for your purchase. Enjoy your remaining words and images.'), 'type' => 'success']);
 
             } else {

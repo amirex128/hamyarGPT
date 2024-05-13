@@ -134,7 +134,7 @@ class Helper
         return config('openai.api_key');
     }
 
-	public static function setGeminiKey(): string
+    public static function setGeminiKey(): string
     {
         $settings = Setting::query()->first();
         if ($settings?->getAttribute('user_api_option')) {
@@ -143,7 +143,7 @@ class Helper
             $apiKeys = explode(',', setting('gemini_api_secret', ''));
         }
         config(['gemini.api_key' => $apiKeys[array_rand($apiKeys)]]);
-		config(['gemini.request_timeout' => 120]);
+        config(['gemini.request_timeout' => 120]);
         return config('gemini.api_key');
     }
 
@@ -176,122 +176,131 @@ class Helper
         }
 
         $text = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@si', '', $text);
-$text = strip_tags($text);
+        $text = strip_tags($text);
 
-if ($remove_breaks) {
-$text = preg_replace('/[\r\n\t ]+/', ' ', $text);
+        if ($remove_breaks) {
+            $text = preg_replace('/[\r\n\t ]+/', ' ', $text);
+        }
+
+        return trim($text);
+    }
+
+    public static function multi_explode($delimiters, $string): array
+    {
+
+        $ready = str_replace($delimiters, $delimiters[0], $string);
+
+        $ready = str_replace([',,'], ',', $ready);
+
+        $ready = str_replace('-', '', $ready);
+
+        return explode($delimiters[0], $ready);
+    }
+
+    public static function settingTwo(string $key, $default = null)
+    {
+        $setting = SettingTwo::query()->first();
+
+        return $setting?->getAttribute($key) ?? $default;
+    }
+
+    public static function setting(string $key, $default = null)
+    {
+        $setting = Setting::query()->first();
+
+        return $setting?->getAttribute($key) ?? $default;
+    }
+
+    public static function appIsDemo(): bool
+    {
+        return config('app.status') == 'Demo';
+    }
+
+    public static function appIsNotDemo(): bool
+    {
+        return config('app.status') != 'Demo';
+    }
+
+    public static function checkImageDailyLimit()
+    {
+        $settings_two = SettingTwo::first();
+        if ($settings_two->daily_limit_enabled) {
+            if (Helper::appIsDemo()) {
+                $msg = __('You have reached the maximum number of image generation allowed on the demo.');
+            } else {
+                $msg = __('You have reached the maximum number of image generation allowed.');
+            }
+            $ipAddress = isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : request()->ip();
+            $db_ip_address = RateLimit::where('ip_address', $ipAddress)->where('type', 'image')->first();
+            if ($db_ip_address) {
+                if (now()->diffInDays(Carbon::parse($db_ip_address->last_attempt_at)->format('Y-m-d')) > 0) {
+                    $db_ip_address->attempts = 0;
+                }
+            } else {
+                $db_ip_address = new RateLimit(['ip_address' => $ipAddress]);
+            }
+
+            if ($db_ip_address->attempts >= $settings_two->allowed_images_count) {
+                $data = [
+                    'errors' => [$msg],
+                ];
+
+                return response()->json($data, 429);
+            } else {
+                $db_ip_address->attempts++;
+                $db_ip_address->last_attempt_at = now();
+                $db_ip_address->save();
+            }
+        }
+
+        return response()->json([], 200);
+    }
+
+    public static function checkRemainingImages($usr = null)
+    {
+        $user = $usr ?? auth()->user();
+        if ($user->getAttribute('team')) {
+            $teamManager = $user->teamManager;
+            if ($teamManager) {
+                if ($teamManager->remaining_images <= 0 and $teamManager->remaining_images != -1) {
+                    $data = [
+                        'errors' => ['You have no credits left. Please consider upgrading your plan.'],
+                    ];
+
+                    return response()->json($data, 429);
+                }
+            }
+            $member = $user->teamMember;
+            if ($member) {
+                if (!$member->allow_unlimited_credits) {
+                    if ($member->remaining_images <= 0 and $member->remaining_images != -1) {
+                        $data = [
+                            'errors' => ['You have no credits left. Please consider upgrading your plan.'],
+                        ];
+
+                        return response()->json($data, 429);
+                    }
+                }
+            }
+        } else {
+            if ($user->remaining_images <= 0 and $user->remaining_images != -1) {
+                $data = [
+                    'errors' => ['You have no credits left. Please consider upgrading your plan.'],
+                ];
+
+                return response()->json($data, 429);
+            }
+        }
+
+        return response()->json([], 200);
+    }
+
+    public static function sorting(array $data, $column, $direction)
+    {
+        if ($column) {
+            $data = collect($data)->sortBy($column, SORT_REGULAR, $direction == 'asc');
+        }
+
+        return $data;
+    }
 }
-
-return trim($text);
-}
-
-public static function multi_explode($delimiters, $string): array
-{
-
-$ready = str_replace($delimiters, $delimiters[0], $string);
-
-$ready = str_replace([',,'], ',', $ready);
-
-$ready = str_replace('-', '', $ready);
-
-return explode($delimiters[0], $ready);
-}
-
-public static function settingTwo(string $key, $default = null)
-{
-$setting = SettingTwo::query()->first();
-
-return $setting?->getAttribute($key) ?? $default;
-}
-
-public static function setting(string $key, $default = null)
-{
-$setting = Setting::query()->first();
-
-return $setting?->getAttribute($key) ?? $default;
-}
-
-public static function appIsDemo(): bool
-{
-return config('app.status') == 'Demo';
-}
-
-public static function appIsNotDemo(): bool
-{
-return config('app.status') != 'Demo';
-}
-
-public static function checkImageDailyLimit()
-{
-$settings_two = SettingTwo::first();
-if ($settings_two->daily_limit_enabled) {
-if (Helper::appIsDemo()) {
-$msg = __('You have reached the maximum number of image generation allowed on the demo.');
-} else {
-$msg = __('You have reached the maximum number of image generation allowed.');
-}
-$ipAddress = isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : request()->ip();
-$db_ip_address = RateLimit::where('ip_address', $ipAddress)->where('type', 'image')->first();
-if ($db_ip_address) {
-if (now()->diffInDays(Carbon::parse($db_ip_address->last_attempt_at)->format('Y-m-d')) > 0) {
-$db_ip_address->attempts = 0;
-}
-} else {
-$db_ip_address = new RateLimit(['ip_address' => $ipAddress]);
-}
-
-if ($db_ip_address->attempts >= $settings_two->allowed_images_count) {
-$data = [
-'errors' => [$msg],
-];
-
-return response()->json($data, 429);
-} else {
-$db_ip_address->attempts++;
-$db_ip_address->last_attempt_at = now();
-$db_ip_address->save();
-}
-}
-
-return response()->json([], 200);
-}
-
-public static function checkRemainingImages($usr = null)
-{
-$user = $usr ?? auth()->user();
-if ($user->getAttribute('team')) {
-$teamManager = $user->teamManager;
-if ($teamManager) {
-if ($teamManager->remaining_images <= 0 and $teamManager->remaining_images != -1) {
-	$data = [
-	'errors' => ['You have no credits left. Please consider upgrading your plan.'],
-	];
-
-	return response()->json($data, 429);
-	}
-	}
-	$member = $user->teamMember;
-	if ($member) {
-	if (!$member->allow_unlimited_credits) {
-	if ($member->remaining_images <= 0 and $member->remaining_images != -1) {
-		$data = [
-		'errors' => ['You have no credits left. Please consider upgrading your plan.'],
-		];
-
-		return response()->json($data, 429);
-		}
-		}
-		}
-		} else {
-		if ($user->remaining_images <= 0 and $user->remaining_images != -1) {
-			$data = [
-			'errors' => ['You have no credits left. Please consider upgrading your plan.'],
-			];
-
-			return response()->json($data, 429);
-			}
-			}
-
-			return response()->json([], 200);
-			}
-			}

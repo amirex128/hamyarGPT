@@ -32,6 +32,7 @@ class ApplicationStatusRepository implements ApplicationStatusRepositoryInterfac
                 'liquid_license_domain_key' => $licenseKey,
                 'installed' => $installed
             ]);
+
             return $this->save($data);
         }
 
@@ -41,6 +42,7 @@ class ApplicationStatusRepository implements ApplicationStatusRepositoryInterfac
     public function portal()
     {
         $data = Storage::disk('local')->get('portal');
+
         if ($data) {
             return unserialize($data);
         }
@@ -71,6 +73,7 @@ class ApplicationStatusRepository implements ApplicationStatusRepositoryInterfac
         $data['installed'] = true;
 
         $this->save($data);
+
         if (
             Schema::hasTable('settings_two')
             && Schema::hasColumn('settings_two', 'liquid_license_type')

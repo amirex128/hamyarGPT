@@ -6,44 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-/**
- * 
- *
- * @property int $id
- * @property int $total_user_count
- * @property int $this_week_user_count
- * @property int $last_week_user_count
- * @property int $total_word_count
- * @property int $this_week_word_count
- * @property int $last_week_word_count
- * @property int $total_image_count
- * @property int $this_week_image_count
- * @property int $last_week_image_count
- * @property int $total_sales
- * @property int $this_week_sales
- * @property int $last_week_sales
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|Usage newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Usage newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Usage query()
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereLastWeekImageCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereLastWeekSales($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereLastWeekUserCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereLastWeekWordCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereThisWeekImageCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereThisWeekSales($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereThisWeekUserCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereThisWeekWordCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereTotalImageCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereTotalSales($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereTotalUserCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereTotalWordCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Usage whereUpdatedAt($value)
- * @mixin \Eloquent
- */
 class Usage extends Model
 {
 	protected $table = 'usage';

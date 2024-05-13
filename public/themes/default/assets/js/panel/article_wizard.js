@@ -277,6 +277,7 @@ function goNextStep() {
 }
 
 function generateKeywords() {
+	let useSeo = $('#use_seo_aw_keyword');
 	let language = $( '#language option:selected' ).text();
 	const keywords_topic = $( '#txtforkeyword' ).val();
 	const keywords_count = Number( $( '#number_of_keywords' ).val() );
@@ -322,10 +323,11 @@ function generateKeywords() {
 		toastr.error( data.responseJSON.message );
 	};
 
-	if ( stream_type == 'backend' ) {
+	if(useSeo?.is(":checked")){
+
 		$.ajax( {
 			type: 'post',
-			url: '/dashboard/user/openai/articlewizard/genkeywords',
+			url: '/dashboard/user/seo/genkeywords',
 			data: {
 				id: ( { ...CUR_STATE } ).id,
 				topic: keywords_topic,
@@ -335,27 +337,43 @@ function generateKeywords() {
 			success: success_function,
 			error: error_function
 		} );
-	} else {
-		$.ajax( {
-			type: 'post',
-			url: atob( guest_id ),
-			headers: {
-				'Authorization': 'Bearer ' + atob( guest_event_id ) + atob( guest_look_id ) + atob( guest_product_id ),
-				'Content-Type': 'application/json'
-			},
-			data: JSON.stringify( {
-				messages: [ {
-					role: 'user',
-					content: `Generate ${ keywords_count } keywords(simple words or 2 words, not phrase, not person name) about '${ keywords_topic }'. in ${ language } language. Result JSON format is [keyword1, keyword2, ..., keywordn] without any additional formatting or characters.`
-				} ],
-				model: openai_model
-			} ),
-			success: function ( data ) {
-				data = data[ 'choices' ][ 0 ][ 'message' ][ 'content' ];
-				success_function( { result: data } );
-			},
-			error: error_function
-		} );
+		
+	}else{
+		if ( stream_type == 'backend' ) {
+			$.ajax({
+				type: 'post',
+				url: '/dashboard/user/openai/articlewizard/genkeywords',
+				data: {
+					id: ( { ...CUR_STATE } ).id,
+					topic: keywords_topic,
+					count: keywords_count,
+					language: language,
+				},
+				success: success_function,
+				error: error_function
+			});
+		} else {
+			$.ajax({
+				type: 'post',
+				url: atob( guest_id ),
+				headers: {
+					'Authorization': 'Bearer ' + atob( guest_event_id ) + atob( guest_look_id ) + atob( guest_product_id ),
+					'Content-Type': 'application/json'
+				},
+				data: JSON.stringify( {
+					messages: [ {
+						role: 'user',
+						content: `Generate ${ keywords_count } keywords(simple words or 2 words, not phrase, not person name) about '${ keywords_topic }'. in ${ language } language. Result JSON format is [keyword1, keyword2, ..., keywordn] without any additional formatting or characters.`
+					} ],
+					model: openai_model
+				} ),
+				success: function ( data ) {
+					data = data[ 'choices' ][ 0 ][ 'message' ][ 'content' ];
+					success_function( { result: data } );
+				},
+				error: error_function
+			});
+		}
 	}
 }
 
@@ -548,6 +566,34 @@ function generateOutlines() {
 			error: error_function
 		} );
 	}
+	generateSearchQuestions();
+}
+
+function generateSearchQuestions() {
+	var formData = new FormData();
+	formData.append('title', wizardData.title);
+
+	$.ajax({
+		type: 'post',
+		url: '/dashboard/user/seo/genSearchQuestions',
+		data: formData,
+		contentType: false,
+		processData: false,
+
+		success: function(data) {
+			var search_questions_input = $('#search_questions');
+			$('#search_questions_card').removeClass('hidden');
+			
+			var res_array = data.result;
+			var res_string = res_array.join('\n');
+			search_questions_input.empty();
+			search_questions_input.val(res_string);
+			$('.mt-5').removeClass('hidden');
+		},
+		error: function(data) {
+			console.log(data);
+		}
+	});
 }
 
 function generateImages() {

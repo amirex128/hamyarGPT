@@ -116,7 +116,7 @@ class AppServiceProvider extends ServiceProvider
                 (env('MAIL_SMTP') ?? 'smtp') => [
                     'transport' => env('MAIL_DRIVER') ?? 'smtp',
                     'host' => $settings->smtp_host ?? env('MAIL_HOST'),
-                    'port' => (int) $settings->smtp_port ?? (int) env('MAIL_PORT',587),
+                    'port' => (int) $settings->smtp_port ?? (int) env('MAIL_PORT'),
                     'encryption' => $settings->smtp_encryption ?? env('MAIL_ENCRYPTION'),
                     'username' => $settings->smtp_username ?? env('MAIL_USERNAME'),
                     'password' => $settings->smtp_password ?? env('MAIL_PASSWORD'),

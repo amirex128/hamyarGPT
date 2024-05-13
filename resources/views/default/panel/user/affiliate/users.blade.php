@@ -79,8 +79,8 @@
                 <x-slot:body>
                     @forelse ($list as $entry)
                         <tr>
-                            <td>
-                                {{ $entry->user->name . ' ' . $entry->user->surname }}
+                            <td class="sort-id">
+                                {{ $entry->name . ' ' . $entry->surname }}
                             </td>
                             <td>
                                 {{ $entry->amount }}

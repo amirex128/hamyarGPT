@@ -111,6 +111,37 @@
                                     </x-forms.input>
                                 </div>
                             </div>
+
+                            <div
+                                class="flex w-full flex-col gap-5"
+                                x-data="{ 'bulkEnabled': false }"
+                            >
+                                <x-forms.input
+                                    id="bulk"
+                                    type="checkbox"
+                                    name="bulk"
+                                    label="{{ __('Generate Bulk Posts') }}"
+                                    @change="bulkEnabled = $el.checked"
+                                    switcher
+                                />
+
+                                <div
+                                    class="hidden w-full flex-col gap-5"
+                                    :class="{ 'hidden': !bulkEnabled, 'flex': bulkEnabled }"
+                                >
+                                    <x-forms.input
+                                        id="number_of_results"
+                                        size="lg"
+                                        type="number"
+                                        label="{{ __('Number of Results') }}"
+                                        containerClass="w-full"
+                                        name="number_of_results"
+                                        value="1"
+                                        placeholder="{{ __('Number of results') }}"
+                                        required
+                                    />
+                                </div>
+                            </div>
                         @endif
                         @foreach (json_decode($openai->questions) ?? [] as $question)
                             @php
@@ -172,7 +203,7 @@
                                     size="lg"
                                     type="select"
                                     label="{{ __('Language') }}"
-                                    containerClass="w-full"
+                                    containerClass="w-full md:w-[48%]"
                                     name="language"
                                     required
                                 >
@@ -193,18 +224,6 @@
                                         required
                                     />
                                 @endif
-
-                                <x-forms.input
-                                    id="number_of_results"
-                                    size="lg"
-                                    type="number"
-                                    label="{{ __('Number of Results') }}"
-                                    containerClass="w-full md:w-[48%]"
-                                    name="number_of_results"
-                                    value="1"
-                                    placeholder="{{ __('Number of results') }}"
-                                    required
-                                />
 
                                 @if (setting('hide_creativity_option') != 1)
                                     <x-forms.input

@@ -32,6 +32,7 @@
         <div class="flex flex-wrap justify-between">
             <div class="flex w-full flex-col gap-5 lg:w-7/12">
                 <x-forms.input
+                    class="blog-post-title"
                     id="title"
                     label="{{ __('Post Title') }}"
                     name="title"
@@ -138,6 +139,7 @@
                 </h3>
 
                 <x-forms.input
+                    class="{{ setting('serper_seo_blog_title_desc', 0) == 1 ? 'input-seo' : '' }}"
                     id="seo_title"
                     name="seo_title"
                     value="{{ $blog != null ? $blog->seo_title : null }}"
@@ -156,6 +158,7 @@
                 />
 
                 <x-forms.input
+                    class="{{ setting('serper_seo_blog_title_desc', 0) == 1 ? 'input-seo' : '' }}"
                     id="seo_description"
                     name="seo_description"
                     label="{{ __('SEO Description') }}"

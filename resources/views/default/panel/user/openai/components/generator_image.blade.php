@@ -48,7 +48,7 @@
             >
                 {{ __('DALL-E') }}
             </x-button>
-            @if (setting('stable_hidden') == 1 || setting('stable_hidden') == null)
+            @if (setting('stable_hidden', 0) != 1)
                 <x-button
                     class="lqd-image-generator-tabs-trigger py-2 text-2xs font-bold text-heading-foreground hover:shadow-none [&.active]:bg-foreground/10"
                     data-generator-name="stablediffusion"

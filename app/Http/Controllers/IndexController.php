@@ -111,7 +111,6 @@ class IndexController extends Controller
     }
 
 
-
     public function howitWorksDefaults(){
         $values = json_decode('{"option": TRUE, "html": ""}');
         $default_html = 'Want to see? <a class="text-[#FCA7FF]" href="https://codecanyon.net/item/magicai-openai-content-text-image-chat-code-generator-as-saas/45408109" target="_blank">'.__('Join').' Magic</a>';

@@ -6,6 +6,7 @@ use App\Helpers\Classes\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Finance\PaymentProcessController;
 use App\Jobs\SendInviteEmail;
+use App\Models\Currency;
 use App\Models\Folders;
 use App\Models\Gateways;
 use App\Models\UserDocsFavorite;
@@ -618,30 +619,39 @@ class UserController extends Controller
         return view('panel.user.affiliate.index', compact('list', 'list2', 'totalEarnings', 'totalWithdrawal'));
     }
 
-	public function affiliatesUsers(Request $request)
-	{
-		$userIds = User::where("affiliate_id", auth()->user()->id)->pluck('id');
-		$query = UserAffiliate::whereIn("user_id", $userIds)->with('user');
+    public function affiliatesUsers(Request $request)
+    {
+        $setting = Setting::first();
 
-		if ($request->has('search')) {
-			$searchTerm = $request->input('search');
-			$query->whereHas('user', function($q) use ($searchTerm) {
-				$q->where('name', 'like', '%' . $searchTerm . '%');
-			});
-		}
+        $defaultCurrency = Currency::find($setting->default_currency)->symbol;
 
-		if ($request->has('startDate') && $request->input('startDate')) {
-			$query->whereDate('created_at', '>=', $request->input('startDate'));
-		}
 
-		if ($request->has('endDate') && $request->input('endDate')) {
-			$query->whereDate('created_at', '<=', $request->input('endDate'));
-		}
+        $query = User::where("affiliate_id", auth()->user()->id);
 
-		$list = $query->paginate(10);
+        if ($request->has('search')) {
+            $searchTerm = $request->input('search');
+            $query->where('name', 'like', '%' . $searchTerm . '%');
+        }
 
-		return view('panel.user.affiliate.users', compact('list'));
-	}
+        if ($request->has('startDate') && $request->input('startDate')) {
+            $query->whereDate('created_at', '>=', $request->input('startDate'));
+        }
+
+        if ($request->has('endDate') && $request->input('endDate')) {
+            $query->whereDate('created_at', '<=', $request->input('endDate'));
+        }
+
+        $list = $query->paginate(10);
+
+        foreach ($list as $user) {
+            $affiliate = UserAffiliate::where("user_id", $user->id)->first();
+            if ($affiliate) {
+                $user->affiliate_data = $affiliate;
+            }
+        }
+
+        return view('panel.user.affiliate.users', compact(['list','defaultCurrency']));
+    }
 
     public function affiliatesListSendInvitation(Request $request)
     {

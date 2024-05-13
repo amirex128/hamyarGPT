@@ -12,7 +12,11 @@ const generate = async ( message_no, creativity, maximum_length, number_of_resul
 
 	const chunk = [];
 	let streaming = true;
-	var result = '';
+	let result = '';
+	let formattedText = '';
+	let textIsFormatted = false;
+
+	const md = window.markdownit();
 
 	const nIntervId = setInterval( function () {
 		if ( chunk.length == 0 && !streaming ) {
@@ -24,9 +28,20 @@ const generate = async ( message_no, creativity, maximum_length, number_of_resul
 			if (stream_type != 'backend'){
 				saveResponse( prompt, result, message_no );
 			}
+
+			// at the end format the content from markdown to html
+			if ( !textIsFormatted && result ) {
+				formattedText = md.render(md.utils.unescapeAll(result.replace(/<div>|<\/div>/g, '').replace(/<br>|<br\/>/g, '\n')));
+				textIsFormatted = true;
+			}
+			if ( formattedText ) {
+				tinyMCE.activeEditor.setContent( formattedText );
+			}
 			clearInterval( nIntervId );
 		}
+
 		const text = chunk.shift();
+
 		if ( text ) {
 			streamed_text = streamed_text + text;
 			result += text;
@@ -105,8 +120,6 @@ const generate = async ( message_no, creativity, maximum_length, number_of_resul
 		});
 
 		try {
-
-
 
 			const response = await fetch(guest_id2, {
 				method: 'POST',
@@ -231,6 +244,7 @@ const tinymceOptions = {
 	contextmenu: 'customwrite |  rewrite summarize makeitlonger makeitshorter improvewriting translatetospanish fixgrammaticalmistakes | copy paste',
 	toolbar: 'styles | magicIconRewrite | magicAIButton | link | image | forecolor backcolor emoticons | bold italic underline | bullist numlist | blockquote | wordcount | alignleft aligncenter alignright | code supercode',
 	content_css: `${window.liquid.assetsPath}/css/tinymce-theme.css`,
+	forced_root_block: 'div',
 	supercode: {
 		renderer: (markdownCode) => {
 			return window.markdownit().render(markdownCode);

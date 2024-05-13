@@ -85,6 +85,69 @@ function userCreditDecreaseForWord(User $user, $decreaseCredit)
     }
 	Usage::getSingle()->updateWordCounts($decreaseCredit);
 }
+
+function userCreditDecreaseForImage(User $user, $decreaseCredit)
+{
+    $team = $user->getAttribute('team');
+
+    if ($team) {
+        $teamManager = $user->teamManager;
+
+        if ($teamManager) {
+
+            if ($teamManager->remaining_images != -1 and $teamManager->remaining_images - $decreaseCredit < -1) {
+                $teamManager->remaining_images = 0;
+            }
+
+            if ($teamManager->remaining_images != -1) {
+                $teamManager->remaining_images -= $decreaseCredit;
+            }
+
+            if ($teamManager->remaining_images < -1) {
+                $teamManager->remaining_images = 0;
+            }
+
+            $teamManager->save();
+        }
+
+        $member = $user->teamMember;
+
+        if ($member) {
+            if (! $member->allow_unlimited_credits) {
+                if ($member->remaining_images != -1 && $member->remaining_images - $decreaseCredit < -1) {
+                    $member->remaining_images = 0;
+                }
+
+                if ($member->remaining_images != -1) {
+                    $member->remaining_images -= $decreaseCredit;
+                }
+
+                if ($member->remaining_images < -1) {
+                    $member->remaining_images = 0;
+                }
+            }
+
+            $member->used_word_credit += $decreaseCredit;
+
+            $member->save();
+        }
+    }else {
+        if ($user->remaining_images != -1 and $user->remaining_images - $decreaseCredit < -1) {
+            $user->remaining_images = 0;
+        }
+
+        if ($user->remaining_images != -1 and $user->remaining_images - $decreaseCredit > 0) {
+            $user->remaining_images -= $decreaseCredit;
+        }
+
+        if ($user->remaining_images < -1) {
+            $user->remaining_images = 0;
+        }
+
+        $user->save();
+    }
+	Usage::getSingle()->updateImageCounts($decreaseCredit);
+}
 function getImageUrlByOrderId($orderId)
 {
     $paymentProof = PaymentProof::where('order_id', $orderId)->first();

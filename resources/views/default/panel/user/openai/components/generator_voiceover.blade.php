@@ -423,6 +423,13 @@
                         {{ __('Chinese (Hong Kong)') }}
                     </option>
                     <option
+                        language="Chinese"
+                        @selected(LaravelLocalization::getCurrentLocale() == 'zh')
+                        value="zh-CN"
+                    >
+                        {{ __('Chinese (Mandarin, Simplified)') }}
+                    </option>
+                    <option
                         language="Czech"
                         @selected(LaravelLocalization::getCurrentLocale() == 'cs')
                         value="cs-CZ"
@@ -906,9 +913,6 @@
     </form>
 </x-card>
 
-<h3 class="mb-5">
-    {{ __('Audio Files') }}
-</h3>
 <div id="generator_sidebar_table">
     @include('panel.user.openai.components.generator_sidebar_table')
 </div>

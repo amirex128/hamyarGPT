@@ -117,7 +117,7 @@
 
     @vite($app_js_path)
 
-	@if (setting('additional_custom_css') != null)
+    @if (setting('additional_custom_css') != null)
         {!! setting('additional_custom_css') !!}
     @endif
 </head>
@@ -169,12 +169,6 @@
 
     <script src="{{ custom_theme_url('assets/libs/fslightbox/fslightbox.js') }}"></script>
     <script src="{{ custom_theme_url('assets/libs/toastr/toastr.min.js') }}"></script>
-
-    @if (\Session::has('message'))
-        <script>
-            toastr.{{ \Session::get('type') }}('{{ \Session::get('message') }}')
-        </script>
-    @endif
 
     @if (\Session::has('message'))
         <script>

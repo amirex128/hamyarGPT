@@ -80,6 +80,10 @@ class EventServiceProvider extends ServiceProvider
 		PaystackLifetimeEvent::class => [
             PaystackLifetimeListener::class,
         ],
+        # This should not be deleted, the extension tip is required
+        \App\Events\AffiliateEvent::class => [
+            \App\Listeners\AffiliateListener::class,
+        ],
     ];
 
     /**

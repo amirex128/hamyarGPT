@@ -76,7 +76,7 @@
                             @if ($category->slug != 'ai_vision' && $category->slug != 'ai_pdf')
                                 {{ __('(Only jpg, png, webp will be accepted)') }}
                             @else
-                                {{ __('(Only jpg, png, webp and pdf will be accepted)') }}
+                                {{ __('(Only jpg, png and webp will be accepted)') }}
                             @endif
                         </span>
                     </div>

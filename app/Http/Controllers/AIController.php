@@ -861,46 +861,8 @@ class AIController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'AWS Error - '.$e->getMessage()]);
             }
         }
-
-        // if in team
-        if ($user->getAttribute('team')) {
-            $teamManager = $user->teamManager;
-            if ($teamManager) {
-                if ($teamManager->remaining_images != -1) {
-                    $teamManager->remaining_images -= 1;
-                    $teamManager->save();
-                }
-                if ($teamManager->remaining_images < -1) {
-                    $teamManager->remaining_images = 0;
-                    $teamManager->save();
-                }
-            }
-            $member = $user->teamMember;
-            if ($member) {
-                if (! $member->allow_unlimited_credits) {
-                    if ($member->remaining_images != -1) {
-                        $member->remaining_images -= 1;
-                        $member->save();
-                    }
-                    if ($member->remaining_images < -1) {
-                        $member->remaining_images = 0;
-                        $member->save();
-                    }
-                }
-                $member->used_image_credit += 1;
-                $member->save();
-            }
-        } else {
-            if ($user->remaining_images != -1) {
-                $user->remaining_images -= 1;
-                $user->save();
-            }
-            if ($user->remaining_images < -1) {
-                $user->remaining_images = 0;
-                $user->save();
-            }
-        }
-		Usage::getSingle()->updateImageCounts(1);
+		
+		userCreditDecreaseForImage($user, 1);
         return response()->json(['path' => $path]);
     }
 
@@ -1205,25 +1167,6 @@ class AIController extends Controller
                         }
 
 
-					} catch (RequestException $e) {
-						if ($e->hasResponse()) {
-							$response = $e->getResponse();
-							$statusCode = $response->getStatusCode();
-							// Custom handling for specific status codes here...
-
-							if ($statusCode == '404') {
-								// Handle a not found error
-							} elseif ($statusCode == '500') {
-								// Handle a server error
-							}
-
-							$errorMessage = $response->getBody()->getContents();
-
-							return response()->json(['status' => 'error', 'message' => json_decode($errorMessage)->message]);
-							// Log the error message or handle it as required
-						}
-
-						return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
 					} catch (Exception $e) {
 
 						if ($e->hasResponse()) {
@@ -1231,14 +1174,23 @@ class AIController extends Controller
 							$statusCode = $response->getStatusCode();
 							// Custom handling for specific status codes here...
 
+							if ($statusCode == 403) {
+								// Handle content moderation error
+								$errorMessage = $response->getBody()->getContents();
+								$errorData = json_decode($errorMessage, true);
+
+								return response()->json([
+									'status' => 'error',
+									'message' => $errorData['errors'],
+									'name' => $errorData['name']
+								], 403);
+							}
 							if ($statusCode == '404') {
 								// Handle a not found error
 							} elseif ($statusCode == '500') {
 								// Handle a server error
 							}
-
 							$errorMessage = $response->getBody()->getContents();
-
 							return response()->json(['status' => 'error', 'message' => json_decode($errorMessage)->message]);
 						}
 
@@ -1324,47 +1276,7 @@ class AIController extends Controller
 
 				//push each generated image to an array
 				array_push($entries, $entry);
-
-				// if in team
-				if ($user->getAttribute('team')) {
-					$teamManager = $user->teamManager;
-					if ($teamManager) {
-						if ($teamManager->remaining_images != -1) {
-							$teamManager->remaining_images -= 1;
-							$teamManager->save();
-						}
-						if ($teamManager->remaining_images < -1) {
-							$teamManager->remaining_images = 0;
-							$teamManager->save();
-						}
-					}
-					$member = $user->teamMember;
-					if ($member) {
-						if (! $member->allow_unlimited_credits) {
-							if ($member->remaining_images != -1) {
-								$member->remaining_images -= 1;
-								$member->save();
-							}
-							if ($member->remaining_images < -1) {
-								$member->remaining_images = 0;
-								$member->save();
-							}
-						}
-						$member->used_image_credit += 1;
-						$member->save();
-					}
-				} else {
-					if ($user->remaining_images != -1) {
-						$user->remaining_images -= 1;
-						$user->save();
-					}
-					if ($user->remaining_images < -1) {
-						$user->remaining_images = 0;
-						$user->save();
-					}
-				}
-
-				Usage::getSingle()->updateImageCounts(1);
+				userCreditDecreaseForImage($user, 1);
 			}
 
 			// Release the lock

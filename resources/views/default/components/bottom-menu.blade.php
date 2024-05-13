@@ -55,8 +55,10 @@
             <li class="relative">
                 <a
                     class="flex items-center gap-2 border-b border-l-0 border-r-0 border-t-0 border-solid border-[--tblr-border-color] p-3 py-2 text-inherit"
-                    @if ($aiWriter->type == 'text' || $aiWriter->type == 'code') href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator.workbook', $aiWriter->slug)) }}"
-                @else href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator', $aiWriter->slug)) }}" @endif
+                    @if (($aiWriter->type == 'text' || $aiWriter->type == 'code') && $aiWriter->slug != 'ai_webchat') href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator.workbook', $aiWriter->slug)) }}"
+					@elseif ($aiWriter->slug == 'ai_webchat' && \Illuminate\Support\Facades\Route::has('dashboard.user.openai.webchat.workbook'))
+           	 		href="{{ route('dashboard.user.openai.webchat.workbook') }}"
+					@else href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator', $aiWriter->slug)) }}" @endif
                 >
                     <span
                         class="size-9 [&_svg]:size-5 relative inline-flex items-center justify-center rounded-full transition-all duration-300"

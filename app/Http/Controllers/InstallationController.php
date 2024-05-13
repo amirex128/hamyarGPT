@@ -184,7 +184,7 @@ class InstallationController extends Controller
 
     public function updateManual()
     {
-        $version = '5.80';
+        $version = '5.90';
 
         /*
         Yeni gelen tabloları migrate ediyoruz.

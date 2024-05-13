@@ -36,8 +36,10 @@
             {{ __('Save') }}
         </button>
     </form>
+    @includeIf('panel.admin.settings.particles.affiliate-setting')
 @endsection
 
 @push('script')
     <script src="{{ custom_theme_url('/assets/js/panel/settings.js') }}"></script>
+    @includeIf('panel.admin.settings.particles.affiliate-setting-script')
 @endpush

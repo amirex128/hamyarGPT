@@ -31,7 +31,7 @@ class ExtensionRepository implements ExtensionRepositoryInterface
     {
         $response = $this->request('get','extension', [
             'is_theme' => $isTheme,
-            'is_beta'   => true
+//            'is_beta' => true
         ]);
 
         if ($response->ok()) {

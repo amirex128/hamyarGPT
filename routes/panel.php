@@ -37,6 +37,7 @@ use App\Http\Controllers\Team\TeamController;
 use App\Http\Controllers\TTSController;
 use App\Http\Controllers\Voice\ElevenlabVoiceController;
 use App\Http\Middleware\CheckTemplateTypeAndPlan;
+use App\Services\DeFi\DeFi;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -49,6 +50,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
         ->group(function () {
 
 		Route::get('/', [UserController::class, 'redirect'])->name('index');
+
+        DeFi::routes();
 
 		//User Area
 		Route::prefix('user')->name('user.')->group(function () {
@@ -64,10 +67,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
                 Route::get('deactivate','deactivate2FA')->name('deactivate');
             });
 
-
-
 			# premium support
-
 			Route::get('premium-support', PremiumSupportController::class)->name('premium-support');
 
 			Route::prefix('api-keys')->name('apikeys.')->group(function () {
@@ -235,14 +235,27 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
 						});
 					});
 
+
+
+
 					// Route::middleware('hasTokens')->group(function () {
 					//     Route::prefix('vision')->name('vision.')->group(function () {
 					//         Route::get('/ai-vision', [AIVisionController::class, 'openAIVision'])->name('vision');
 					//     });
 					// });
-	
+
 				});
+            if (class_exists('App\Http\Controllers\SEO\SeoController')) {
+                Route::middleware('hasTokens')->group(function () {
+                    Route::prefix('seo')->name('seo.')->group(function () {
+                        Route::post('/genkeywords', [\App\Http\Controllers\SEO\SeoController::class, 'generateKeywords'])->name('genkeywords');
+                        Route::post('/genSearchQuestions', [\App\Http\Controllers\SEO\SeoController::class, 'genSearchQuestions'])->name('genSearchQuestions');
+                        Route::post('/genSEO', [\App\Http\Controllers\SEO\SeoController::class, 'genSEO'])->name('genSEO');
+                    });
+                });
+            }
 			// user profile settings
+
 			Route::prefix('settings')->name('settings.')->group(function () {
 				Route::get('/', [UserController::class, 'userSettings'])->name('index');
 				Route::post('/save', [UserController::class, 'userSettingsSave']);
@@ -480,6 +493,15 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
 					Route::get('/unsplashapi/test', [SettingsController::class, 'unsplashapiTest'])->name('unsplashapi.test');
 					Route::post('/unsplashapi-save', [SettingsController::class, 'unsplashapiSave']);
 
+
+					Route::get('/pexelsapi', [SettingsController::class, 'pexelsapi'])->name('pexelsapi');
+					Route::get('/pexelsapi/test', [SettingsController::class, 'pexelsapiTest'])->name('pexelsapi.test');
+					Route::post('/pexelsapi-save', [SettingsController::class, 'pexelsapiSave']);
+
+					Route::get('/pixabayapi', [SettingsController::class, 'pixabayapi'])->name('pixabayapi');
+					Route::get('/pixabayapi/test', [SettingsController::class, 'pixabayapiTest'])->name('pixabayapi.test');
+					Route::post('/pixabayapi-save', [SettingsController::class, 'pixabayapiSave']);
+
 					// thumbnail system
 					Route::get('/thumbnail', [SettingsController::class, 'thumbnail'])->name('thumbnail');
 					Route::post('/thumbnail-save', [SettingsController::class, 'thumbnailSave'])->name('thumbnail.save');
@@ -500,6 +522,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
 
 					Route::get('/affiliate', [SettingsController::class, 'affiliate'])->name('affiliate');
 					Route::post('/affiliate-save', [SettingsController::class, 'affiliateSave']);
+                    Route::post('/affiliate-status-save/{id}', [SettingsController::class, 'affiliateStatusSave']);
 
 					Route::get('/smtp', [SettingsController::class, 'smtp'])->name('smtp');
 					Route::post('/smtp-save', [SettingsController::class, 'smtpSave']);

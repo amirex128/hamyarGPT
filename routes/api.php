@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 | destroy   DELETE
 |
 */
+
 Route::prefix('auth')->group(function () {
     Route::post('register',                 'App\Http\Controllers\Api\AuthController@register');
     Route::post('forgot-password',          'App\Http\Controllers\Api\AuthController@sendPasswordResetMail');

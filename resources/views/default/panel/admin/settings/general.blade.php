@@ -156,6 +156,50 @@
                     </select>
                 </div>
             </div>
+
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="form-label">{{ __('Article Wizard default image engine') }}
+                        <x-badge
+                            class="ms-2 text-2xs"
+                            variant="secondary"
+                        >
+                            @lang('New')
+                        </x-badge>
+                    </label>
+                    <select
+                        class="form-select"
+                        id="default_aw_image_engine"
+                        name="default_aw_image_engine"
+                    >
+                        <option
+                            value="unsplash"
+                            {{ setting('default_aw_image_engine', 'unsplash') == 'unsplash' ? 'selected' : '' }}
+                        >
+                            {{ __('Unsplash') }}</option>
+                        <option
+                            value="pexels"
+                            {{ setting('default_aw_image_engine', 'unsplash') == 'unsplash' ? 'selected' : '' }}
+                        >
+                            {{ __('Pexels') }}</option>
+                        <option
+                            value="pixabay"
+                            {{ setting('default_aw_image_engine', 'unsplash') == 'unsplash' ? 'selected' : '' }}
+                        >
+                            {{ __('Pixabay') }}</option>
+                        <option
+                            value="openai"
+                            {{ setting('default_aw_image_engine', 'unsplash') == 'openai' ? 'selected' : '' }}
+                        >
+                            {{ __('Openai Dall-E') }}</option>
+                        <option
+                            value="sd"
+                            {{ setting('default_aw_image_engine', 'unsplash') == 'sd' ? 'selected' : '' }}
+                        >
+                            {{ __('Stable Diffusion') }}</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-12">
@@ -488,7 +532,7 @@
                         </select>
                     </div>
                     <input
-                        class="form-control"
+                        class="form-control {{ setting('serper_seo_site_meta', 0) == 1 ? 'input-seo' : '' }}"
                         id="meta_title"
                         type="text"
                         name="meta_title"
@@ -524,7 +568,7 @@
                         </select>
                     </div>
                     <textarea
-                        class="form-control"
+                        class="form-control {{ setting('serper_seo_site_meta', 0) == 1 ? 'input-seo' : '' }}"
                         id="meta_description"
                         name="meta_description"
                         rows="5"
@@ -536,7 +580,7 @@
                 <div class="mb-3">
                     <label class="form-label">{{ __('Meta Keywords') }}</label>
                     <textarea
-                        class="form-control"
+                        class="form-control {{ setting('serper_seo_site_meta', 0) == 1 ? 'input-seo' : '' }}"
                         id="meta_keywords"
                         name="meta_keywords"
                         placeholder="{{ __('ChatGPT, AI Writer, AI Image Generator, AI Chat') }}"

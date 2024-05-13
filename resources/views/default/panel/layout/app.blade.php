@@ -172,7 +172,6 @@
                 @if ($good_for_now)
                     @auth
                         @if (!isset($disable_header))
-
                             @include('panel.layout.header', ['layout_wide', isset($layout_wide) ? $layout_wide : ''])
                         @endif
                         @if (!isset($disable_titlebar))
@@ -182,6 +181,7 @@
                     @yield('before_content_container')
                     <div @class([
                         'lqd-page-content-container',
+                        'h-full',
                         'container' => !isset($layout_wide) || empty($layout_wide),
                         $wide_layout_px_class =>
                             filled($wide_layout_px_class) &&
@@ -288,6 +288,10 @@
     </template>
 
     @includeIf('panel.layout.before-body-close')
+
+    @if (view()->exists('panel.admin.settings.particles.serper_seo'))
+        <script src="{{ custom_theme_url('/assets/js/panel/generateSEO.js') }}"></script>
+    @endif
 </body>
 
 </html>

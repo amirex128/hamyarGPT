@@ -17,7 +17,7 @@
                 style="background-image: url('{{ custom_theme_url($avatarUrl) }}')"
             ></span>
             <div
-                class="chat-content-container group relative max-w-[calc(100%-64px)] rounded-[2em] bg-secondary text-secondary-foreground dark:bg-primary/30 dark:text-primary-foreground">
+                class="chat-content-container group relative max-w-[calc(100%-64px)] rounded-[2em] bg-secondary text-secondary-foreground dark:bg-zinc-700 dark:text-primary-foreground">
                 <div class="chat-content px-6 py-3">
                     {{ $message->input }}
                 </div>

@@ -4086,7 +4086,6 @@
                     voiceSelect.empty();
 
                     if (selectedOptions) {
-
                         if (@json($settings_two->feature_tts_google) == true) {
                             selectedOptions.forEach(option => {
                                 $("<option></option>")
@@ -4156,33 +4155,7 @@
                     }
 
                     @includeIf('default.panel.user.openai.components.feature_tts_azure')
-
-                    {{--if (@json(setting('feature_tts_azure', false)) == 1) {--}}
-                    {{--    const selectedOptionsAzure = azureVoiceData[selectedLanguage];--}}
-                    {{--    if (selectedOptionsAzure) {--}}
-                    {{--        if (allowedAzureList.includes(selectedLanguage)) {--}}
-                    {{--            selectedOptionsAzure.forEach(option => {--}}
-                    {{--                $("<option></option>")--}}
-                    {{--                    .val(option.value)--}}
-                    {{--                    .text(option.label + (" (Azure)"))--}}
-                    {{--                    .attr('platform', "azure")--}}
-                    {{--                    .attr('name', option.label + (" (Azure)"))--}}
-                    {{--                    .appendTo(voiceSelect);--}}
-                    {{--            });--}}
-                    {{--        }--}}
-                    {{--    } else {--}}
-                    {{--        selectedOptionsAzure.forEach(option => {--}}
-                    {{--            $("<option></option>")--}}
-                    {{--                .val(option.value)--}}
-                    {{--                .text(option.label + (" (Azure)"))--}}
-                    {{--                .attr('name', option.label + (" (Azure)"))--}}
-                    {{--                .attr('platform', "azure")--}}
-                    {{--                .appendTo(voiceSelect);--}}
-                    {{--        });--}}
-                    {{--    }--}}
-                    {{--}--}}
                 }
-
 
                 function populatePaceSelect() {
                     const selectedPlatform = $('#voice option:selected').attr('platform');
@@ -4403,7 +4376,6 @@
                     }
 
                 });
-
             });
         </script>
     @endif

@@ -264,6 +264,7 @@ function generalSettingsSave() {
     formData.append('default_country', $("#default_country").val());
     formData.append('default_currency', $("#default_currency").val());
     formData.append('default_ai_engine', $("#default_ai_engine").val());
+	formData.append('default_aw_image_engine', $("#default_aw_image_engine").val());
     formData.append('openai_default_stream_server', $("#openai_default_stream_server").is(":checked") ? 'frontend' : 'backend');
     formData.append('login_without_confirmation', $("#login_without_confirmation").is(":checked") ? 0 : 1);
     formData.append('daily_limit_count', $("#daily_limit_count").val());
@@ -654,6 +655,67 @@ function unsplashSettingsSave() {
     });
     return false;
 }
+function pexelsSettingsSave() {
+    "use strict";
+
+    document.getElementById("settings_button").disabled = true;
+    document.getElementById("settings_button").innerHTML = magicai_localize.please_wait;
+
+    var formData = new FormData();
+    formData.append('pexels_api_key', $("#pexels_api_key").val());
+
+    $.ajax({
+        type: "post",
+        url: "/dashboard/admin/settings/pexelsapi-save",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+            toastr.success(magicai_localize?.settings_saved ||'Settings saved succesfully')
+            document.getElementById("settings_button").disabled = false;
+            document.getElementById("settings_button").innerHTML = "Save";
+        },
+        error: function (data) {
+            var err = data.responseJSON.errors;
+            $.each(err, function (index, value) {
+                toastr.error(value);
+            });
+            document.getElementById("settings_button").disabled = false;
+            document.getElementById("settings_button").innerHTML = "Save";
+        }
+    });
+    return false;
+}
+function pixabaySettingsSave() {
+    "use strict";
+
+    document.getElementById("settings_button").disabled = true;
+    document.getElementById("settings_button").innerHTML = magicai_localize.please_wait;
+
+    var formData = new FormData();
+    formData.append('pixabay_api_key', $("#pixabay_api_key").val());
+    $.ajax({
+        type: "post",
+        url: "/dashboard/admin/settings/pixabayapi-save",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+            toastr.success(magicai_localize?.settings_saved ||'Settings saved succesfully')
+            document.getElementById("settings_button").disabled = false;
+            document.getElementById("settings_button").innerHTML = "Save";
+        },
+        error: function (data) {
+            var err = data.responseJSON.errors;
+            $.each(err, function (index, value) {
+                toastr.error(value);
+            });
+            document.getElementById("settings_button").disabled = false;
+            document.getElementById("settings_button").innerHTML = "Save";
+        }
+    });
+    return false;
+}
 
 function serperSettingsSave() {
 	"use strict";
@@ -663,8 +725,22 @@ function serperSettingsSave() {
 
 	var formData = new FormData();
 	formData.append( 'serper_api_key', $( "#serper_api_key" ).val() );
-	// formData.append( 'stablediffusion_default_language', $( "#stablediffusion_default_language" ).val() );
-	// formData.append( 'stablediffusion_default_model', $( "#stablediffusion_default_model" ).val() );
+
+    if ($( "#serper_seo_aw_sq" )) {
+        formData.append( 'serper_seo_aw_sq', $( "#serper_seo_aw_sq" ).is( ":checked" ) ? 1 : 0 );
+    }
+
+    if ($( "#serper_seo_aw_keyword" )) {
+        formData.append( 'serper_seo_aw_keyword', $( "#serper_seo_aw_keyword" ).is( ":checked" ) ? 1 : 0 );
+    }
+
+    if ($( "#serper_seo_blog_title_desc" )) {
+        formData.append( 'serper_seo_blog_title_desc', $( "#serper_seo_blog_title_desc" ).is( ":checked" ) ? 1 : 0 );
+    }
+
+    if ($( "#serper_seo_site_meta" )) {
+        formData.append( 'serper_seo_site_meta', $( "#serper_seo_site_meta" ).is( ":checked" ) ? 1 : 0 );
+    }
 
 	$.ajax( {
 	    type: "post",
