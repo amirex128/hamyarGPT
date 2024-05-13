@@ -20,6 +20,165 @@ use Laravel\Cashier\Subscription;
 use Laravel\Cashier\Subscription as Subscriptions;
 use Laravel\Passport\HasApiTokens;
 
+/**
+ * 
+ *
+ * @property int $id
+ * @property string|null $coingate_subscriber_id
+ * @property int|null $team_id
+ * @property int|null $team_manager_id
+ * @property string $name
+ * @property string $surname
+ * @property string $email
+ * @property string|null $phone
+ * @property string $type
+ * @property string $password
+ * @property string $avatar
+ * @property string|null $company_name
+ * @property string|null $company_website
+ * @property string|null $country
+ * @property string|null $address
+ * @property string|null $postal
+ * @property int $status
+ * @property int $remaining_words
+ * @property int $remaining_images
+ * @property string|null $last_seen
+ * @property string|null $github_id
+ * @property string|null $github_token
+ * @property string|null $google_id
+ * @property string|null $google_token
+ * @property string|null $facebook_id
+ * @property string|null $facebook_token
+ * @property string|null $twitter_id
+ * @property string|null $twitter_token
+ * @property string|null $google2fa_secret
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $stripe_id
+ * @property string|null $pm_type
+ * @property string|null $pm_last_four
+ * @property string|null $trial_ends_at
+ * @property string|null $affiliate_code
+ * @property string $affiliate_earnings
+ * @property string|null $affiliate_bank_account
+ * @property int|null $affiliate_id
+ * @property string|null $email_confirmation_code
+ * @property int $email_confirmed
+ * @property string|null $password_reset_code
+ * @property string|null $github_refresh_token
+ * @property string|null $google_refresh_token
+ * @property string|null $iyzico_id
+ * @property string|null $revenuecat_id
+ * @property string|null $apple_id
+ * @property string|null $apple_token
+ * @property string|null $apple_refresh_token
+ * @property string|null $razorpay_id
+ * @property string|null $api_keys
+ * @property string|null $gemini_api_keys
+ * @property string|null $anthropic_api_keys
+ * @property string|null $remember_token
+ * @property string|null $defi_setting
+ * @property int|null $affiliate_status
+ * @property-read User|null $affiliateOf
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $affiliates
+ * @property-read int|null $affiliates_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passport\Client> $clients
+ * @property-read int|null $clients_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
+ * @property-read int|null $companies_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Coupon> $couponsUsed
+ * @property-read int|null $coupons_used_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OpenAIGenerator> $favoriteOpenai
+ * @property-read int|null $favorite_openai_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Folders> $folders
+ * @property-read int|null $folders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, UserIntegration> $integrations
+ * @property-read int|null $integrations_count
+ * @property-read Team|null $myCreatedTeam
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserOpenai> $openai
+ * @property-read int|null $openai_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserOpenaiChat> $openaiChat
+ * @property-read int|null $openai_chat_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserOrder> $orders
+ * @property-read int|null $orders_count
+ * @property-read \App\Models\PaymentPlans|null $relationPlan
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscriptions> $subscriptions
+ * @property-read int|null $subscriptions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserSupport> $supportRequests
+ * @property-read int|null $support_requests_count
+ * @property-read Team|null $team
+ * @property-read User|null $teamManager
+ * @property-read TeamMember|null $teamMember
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Passport\Token> $tokens
+ * @property-read int|null $tokens_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserAffiliate> $withdrawals
+ * @property-read int|null $withdrawals_count
+ * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|User hasExpiredGenericTrial()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User onGenericTrial()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAffiliateBankAccount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAffiliateCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAffiliateEarnings($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAffiliateId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAffiliateStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAnthropicApiKeys($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereApiKeys($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAppleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAppleRefreshToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAppleToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCoingateSubscriberId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCompanyName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCompanyWebsite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereDefiSetting($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailConfirmationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailConfirmed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereFacebookId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereFacebookToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGeminiApiKeys($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGithubId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGithubRefreshToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGithubToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGoogle2faSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGoogleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGoogleRefreshToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGoogleToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereIyzicoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereLastSeen($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePasswordResetCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePmLastFour($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePmType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePostal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRazorpayId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRemainingImages($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRemainingWords($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRevenuecatId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereStripeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereSurname($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereTeamId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereTeamManagerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereTrialEndsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereTwitterId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereTwitterToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class User extends Authenticatable
 {
     use Billable, HasApiTokens, HasFactory, Notifiable;
