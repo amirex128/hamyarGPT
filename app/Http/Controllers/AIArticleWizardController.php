@@ -210,7 +210,7 @@ class AIArticleWizardController extends Controller
                 'model' => $this->settings->openai_default_model,
                 'messages' => [[
                     'role' => 'user',
-                    'content' => "Generate $request->count keywords(simple words or 2 words, not phrase, not person name) about '$request->topic'. Must resut as array json data. in '$request->language' language. Result format is [keyword1, keyword2, ..., keywordn].  Must not write ```json",
+                    'content' => "Generate $request->count keywords(simple words or 2 words, not phrase, not person name) about '$request->topic'. Must result as array json data. in '$request->language' language. Result format is [keyword1, keyword2, ..., keywordn].  Must not write ```json",
                 ]],
             ]);
             $total_used_tokens = countWords($completion['choices'][0]['message']['content']);
