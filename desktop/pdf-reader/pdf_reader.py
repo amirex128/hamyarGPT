@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """آواخوان: Persian PDF reader with Aava TTS, search, navigation and highlighting."""
 from __future__ import annotations
-import os, queue, shutil, subprocess, tempfile, threading
+import os, queue, shutil, subprocess, tempfile, threading, sys
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
@@ -13,8 +13,16 @@ class AavaEngine:
     def __init__(self, model_path=None):
         self.model_path=Path(model_path or os.getenv('AAVA_MODEL',MODEL_DEFAULT)); self.model=self.tokenizer=self.snac=None; self.device=None; self._lock=threading.Lock()
     def ready(self): return self.model is not None
+    def _candidates(self):
+        home=Path.home(); hf=Path(os.getenv('HF_HOME',home/'.cache/huggingface'))
+        candidates=[self.model_path, hf/'models'/ 'KEYHAN-A'/'aava-tts-persian-3b', hf/'hub'/'models--KEYHAN-A--aava-tts-persian-3b']
+        snapshots=candidates[-1]/'snapshots'
+        if snapshots.exists(): candidates.extend(sorted(snapshots.glob('*'),reverse=True))
+        return candidates
     def ensure_downloaded(self, report=None):
-        if self.model_path.exists() and any(self.model_path.glob('*.safetensors')): return
+        for candidate in self._candidates():
+            if candidate.exists() and (any(candidate.glob('*.safetensors')) or (candidate/'config.json').exists()):
+                self.model_path=candidate; return
         if report: report('مدل روی سیستم نیست؛ دانلود حدود ۷٫۶GB شروع شد...')
         from huggingface_hub import snapshot_download
         self.model_path=Path(snapshot_download(repo_id=MODEL_ID,local_dir=str(self.model_path),local_dir_use_symlinks=False))
@@ -117,6 +125,14 @@ class ReaderApp:
         except queue.Empty:pass
         self.root.after(100,self._poll)
 
+def self_test():
+    import ast
+    ast.parse(Path(__file__).read_text(encoding='utf-8'))
+    import fitz
+    if not shutil.which('ffplay'): raise RuntimeError('ffplay/ffmpeg پیدا نشد')
+    print('aava-pdf-reader self-test: OK')
+
 def main():
+    if '--self-test' in sys.argv: self_test(); return
     root=tk.Tk(); ReaderApp(root); root.protocol('WM_DELETE_WINDOW',root.destroy); root.mainloop()
 if __name__=='__main__':main()
