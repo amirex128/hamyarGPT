@@ -98,8 +98,15 @@ git push origin v1.0.0
 خروجی‌ها:
 
 ```text
-aava-pdf-reader-linux.tar.gz
+aava-pdf-reader-linux-installer.sh
 aava-pdf-reader-windows.zip
+```
+
+به‌دلیل حجم بسیار زیاد PyTorch و محدودیت حجم فایل GitHub Release، نسخه‌ی Linux به‌صورت installer سبک ارائه می‌شود. installer با یک اجرا محیط Python، وابستگی‌ها، برنامه و در اولین پخش مدل/FFmpeg را خودکار آماده می‌کند و نیازی به تنظیم PATH ندارد:
+
+```bash
+chmod +x aava-pdf-reader-linux-installer.sh
+./aava-pdf-reader-linux-installer.sh
 ```
 
 ## تست
