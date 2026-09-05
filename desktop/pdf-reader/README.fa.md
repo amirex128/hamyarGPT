@@ -1,27 +1,23 @@
 # آواخوان — کتابخوان حرفه‌ای فارسی با هوش مصنوعی
 
-نسخه‌ی Linux و Windows این پروژه با **Python + Tkinter + PyMuPDF** ساخته شده است. کتابخوان متن PDF فارسی را استخراج و نمایش می‌دهد، صفحه و پاراگراف را تشخیص می‌دهد، پاراگراف فعال را Highlight می‌کند و با مدل رسمی `KEYHAN-A/aava-tts-persian-3b` می‌خواند.
+نسخه‌ی Linux و Windows این پروژه با **Python + Tkinter + PyMuPDF** ساخته شده است. متن PDF فارسی استخراج و نمایش داده می‌شود، صفحه و پاراگراف تشخیص داده می‌شود، پاراگراف فعال Highlight می‌شود و مدل رسمی `KEYHAN-A/aava-tts-persian-3b` آن را می‌خواند.
 
-> مدل Aava از نوع **TTS (تبدیل متن به گفتار)** است، نه گفتار به متن. مدل حدود ۷٫۶GB حجم دارد و برای اجرای CPU به RAM و زمان زیادی نیاز دارد؛ CUDA توصیه می‌شود.
+> مدل Aava از نوع **TTS (تبدیل متن به گفتار)** است، نه گفتار به متن. مدل حدود ۷٫۶GB حجم دارد و برای CPU به RAM و زمان بیشتری نیاز دارد؛ CUDA توصیه می‌شود.
 
 ## قابلیت‌ها
 
-- نمایش متن کامل PDF با اسکرول و تشخیص صفحه و پاراگراف
-- Highlight خودکار پاراگراف در حال خواندن
-- پخش، توقف، قبلی، بعدی و تکرار پاراگراف
-- جست‌وجوی متن فارسی و Highlight نتایج
-- بزرگ‌نمایی و کوچک‌نمایی متن
-- بارگذاری یک‌باره‌ی مدل در حافظه
-- دانلود خودکار مدل از Hugging Face
-- تشخیص CPU یا CUDA
-- تشخیص کش‌های استاندارد Hugging Face در Linux و Windows برای جلوگیری از دانلود مجدد
+- نمایش PDF، تشخیص صفحه و پاراگراف و Highlight خودکار
+- پخش، توقف، قبلی، بعدی، تکرار، جست‌وجو و بزرگ‌نمایی
+- دانلود خودکار مدل Aava و SNAC از Hugging Face
+- تشخیص خودکار کش Hugging Face و جلوگیری از دانلود مجدد مدل
+- مدیریت کاملاً خودکار FFmpeg/ffplay؛ بدون PATH، نصب دستی یا دسترسی administrator
 - خروجی مستقل Linux و Windows EXE با PyInstaller
 
-## نصب Ubuntu/Debian
+## نصب و اجرای نسخه source
 
 ```bash
 sudo apt update
-sudo apt install -y python3 python3-venv python3-tk ffmpeg
+sudo apt install -y python3 python3-venv python3-tk
 cd desktop/pdf-reader
 python3 -m venv .venv
 source .venv/bin/activate
@@ -30,11 +26,19 @@ pip install -r requirements.txt
 # torch را مطابق سیستم CPU/CUDA از راهنمای رسمی نصب کنید:
 # https://pytorch.org/get-started/locally/
 pip install torch
+./run-linux.sh
 ```
 
-## دانلود مدل
+**FFmpeg لازم نیست نصب شود.** برنامه ابتدا ffplay موجود در PATH یا کنار فایل اجرایی را پیدا می‌کند؛ اگر موجود نباشد، نسخه‌ی مناسب را در پوشه‌ی کاربر دانلود و استخراج می‌کند.
 
-برنامه در صورت نبود مدل، خودش آن را دانلود می‌کند. برای دانلود دستی:
+- Linux: `~/.cache/aava-pdf-reader/ffmpeg`
+- Windows: `%LOCALAPPDATA%\AavaPdfReader\ffmpeg`
+
+نسخه‌ی Linux از build استاتیک amd64 و نسخه‌ی Windows از بسته‌ی essentials استفاده می‌کند. دانلود فقط در اولین پخش و در صورت نبودن runtime انجام می‌شود.
+
+## مدل Hugging Face
+
+دانلود خودکار با دکمه‌ی **دانلود/بررسی مدل** یا هنگام اولین پخش انجام می‌شود. دانلود دستی:
 
 ```bash
 huggingface-cli download KEYHAN-A/aava-tts-persian-3b \
@@ -42,77 +46,61 @@ huggingface-cli download KEYHAN-A/aava-tts-persian-3b \
 huggingface-cli download hubertsiuzdak/snac_24khz
 ```
 
-مسیر پیش‌فرض Linux:
+مسیرهای قابل شناسایی:
 
 ```text
-~/.cache/huggingface/models/KEYHAN-A/aava-tts-persian-3b
+Linux:   ~/.cache/huggingface/models/KEYHAN-A/aava-tts-persian-3b
+Windows: C:\Users\amire\.cache\huggingface\models\KEYHAN-A\aava-tts-persian-3b
 ```
 
-مسیر ویندوزی موردنظر شما:
-
-```text
-C:\Users\amire\.cache\huggingface\models\KEYHAN-A\aava-tts-persian-3b
-```
-
-برای مسیر دلخواه:
+برای مسیر سفارشی:
 
 ```bash
 export AAVA_MODEL=/path/to/aava-tts-persian-3b
 ```
 
-برنامه به‌ترتیب `AAVA_MODEL`، مسیر `~/.cache/huggingface/models/...` و snapshotهای `~/.cache/huggingface/hub/models--KEYHAN-A--aava-tts-persian-3b` را بررسی می‌کند. در Windows متغیر `HF_HOME` و کش استاندارد Hugging Face نیز پشتیبانی می‌شود.
+همچنین `HF_HOME` و snapshotهای استاندارد Hugging Face بررسی می‌شوند.
 
-## اجرا
+## ساخت خروجی مستقل
 
-```bash
-cd desktop/pdf-reader
-chmod +x run-linux.sh
-AAVA_PYTHON="$PWD/.venv/bin/python" ./run-linux.sh
-```
+PyInstaller باید روی همان سیستم‌عامل مقصد اجرا شود.
 
-یا:
-
-```bash
-.venv/bin/python pdf_reader.py
-```
-
-بعد از اجرا، PDF را با **باز کردن PDF** انتخاب کنید. برای آماده‌سازی مدل دکمه‌ی **دانلود/بررسی مدل** را بزنید یا مستقیماً **پخش** را انتخاب کنید.
-
-## ساخت Linux و Windows EXE
-
-PyInstaller cross-compiler نیست؛ خروجی هر سیستم‌عامل باید روی همان سیستم‌عامل ساخته شود.
-
-ساخت Linux:
+Linux:
 
 ```bash
 cd desktop/pdf-reader
-python3 -m pip install pyinstaller
+python3 -m pip install -r requirements.txt pyinstaller torch
 chmod +x build-release.sh
 ./build-release.sh
 ./dist/aava-pdf-reader --self-test
 ```
 
-ساخت Windows در PowerShell:
+Windows PowerShell:
 
 ```powershell
 cd desktop\pdf-reader
-py -m pip install -r requirements.txt pyinstaller
+py -m pip install -r requirements.txt pyinstaller torch
 py pdf_reader.py --self-test
 pyinstaller --clean --noconfirm aava-pdf-reader.spec
 ```
 
-خروجی Windows در `dist\aava-pdf-reader.exe` است. `ffplay.exe`/FFmpeg باید در PATH ویندوز باشد یا کنار EXE قرار بگیرد. مدل Aava داخل EXE بسته‌بندی نمی‌شود؛ برنامه آن را از کش یا Hugging Face می‌خواند.
+EXE نیازی به FFmpeg کنار خود ندارد؛ در اولین پخش، runtime در `%LOCALAPPDATA%\AavaPdfReader\ffmpeg` نصب می‌شود.
 
-## انتشار Release در GitHub
+## GitHub Release
 
-Workflow موجود در `.github/workflows/release-reader.yml` روی GitHub Actions، Linux و Windows را جداگانه build می‌کند و برای tag نسخه‌ای در Release قرار می‌دهد:
+Workflow در `.github/workflows/release-reader.yml` با tag نسخه‌ای، هر دو بسته را در runner مناسب می‌سازد:
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
-فایل‌های release شامل `aava-pdf-reader-linux.tar.gz` و `aava-pdf-reader-windows.zip` خواهند بود. اجرای دستی workflow با `workflow_dispatch` نیز artifact تولید می‌کند.
+خروجی‌ها:
+
+```text
+aava-pdf-reader-linux.tar.gz
+aava-pdf-reader-windows.zip
+```
 
 ## تست
 
@@ -120,7 +108,6 @@ git push origin v1.0.0
 python3 -m py_compile pdf_reader.py test_reader.py
 python3 test_reader.py
 python3 pdf_reader.py --self-test
-./dist/aava-pdf-reader --self-test
 ```
 
-PDFهای اسکن‌شده که لایه‌ی متنی ندارند، به OCR نیاز دارند. این نسخه برای PDFهای دارای متن طراحی شده است.
+تست self-test وجود کد و قابلیت شناسایی runtime را بررسی می‌کند؛ دانلود FFmpeg و مدل سنگین در تست build انجام نمی‌شود. PDF اسکن‌شده بدون لایه‌ی متن نیازمند OCR است.

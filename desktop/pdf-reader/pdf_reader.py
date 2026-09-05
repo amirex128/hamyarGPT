@@ -1,13 +1,52 @@
 #!/usr/bin/env python3
 """آواخوان: Persian PDF reader with Aava TTS, search, navigation and highlighting."""
 from __future__ import annotations
-import os, queue, shutil, subprocess, tempfile, threading, sys
+import os, queue, shutil, subprocess, tempfile, threading, sys, platform, urllib.request, zipfile, tarfile
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 MODEL_ID='KEYHAN-A/aava-tts-persian-3b'
 MODEL_DEFAULT=Path.home()/'.cache/huggingface/models/KEYHAN-A/aava-tts-persian-3b'
+
+class FFmpegRuntime:
+    """Find ffplay or install a private user-local copy without admin/PATH setup."""
+    def __init__(self):
+        if platform.system()=='Windows':
+            base=Path(os.getenv('LOCALAPPDATA',Path.home()))/'AavaPdfReader'/'ffmpeg'
+        else: base=Path(os.getenv('XDG_CACHE_HOME',Path.home()/'.cache'))/'aava-pdf-reader'/'ffmpeg'
+        self.base=base; self.lock=threading.Lock()
+    def _names(self): return ['ffplay.exe','ffplay'] if platform.system()=='Windows' else ['ffplay']
+    def locate(self):
+        for name in self._names():
+            found=shutil.which(name)
+            if found: return Path(found)
+        for name in self._names():
+            for p in [self.base/name,self.base/'bin'/name]:
+                if p.exists(): return p
+        return None
+    def ensure(self, report=None):
+        found=self.locate()
+        if found: return found
+        with self.lock:
+            found=self.locate()
+            if found:return found
+            self.base.mkdir(parents=True,exist_ok=True)
+            if platform.system()=='Windows':
+                url='https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip'; archive=self.base/'ffmpeg.zip'
+            elif platform.system()=='Linux':
+                url='https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz'; archive=self.base/'ffmpeg.tar.xz'
+            else: raise RuntimeError('دانلود خودکار FFmpeg برای این سیستم‌عامل پشتیبانی نمی‌شود.')
+            if report: report('FFmpeg پیدا نشد؛ دانلود خودکار پخش‌کننده شروع شد...')
+            urllib.request.urlretrieve(url,archive)
+            if archive.suffix=='.zip':
+                with zipfile.ZipFile(archive) as z:z.extractall(self.base)
+            else:
+                with tarfile.open(archive,'r:xz') as t:t.extractall(self.base)
+            archive.unlink(missing_ok=True); found=self.locate()
+            if not found: raise RuntimeError('FFmpeg دانلود شد اما ffplay پیدا نشد.')
+            if platform.system()!='Windows': found.chmod(found.stat().st_mode|0o111)
+            return found
 
 class AavaEngine:
     def __init__(self, model_path=None):
@@ -55,7 +94,7 @@ class AavaEngine:
 
 class ReaderApp:
     def __init__(self,root):
-        self.root=root; root.title('آواخوان — کتابخوان حرفه‌ای فارسی'); root.geometry('1180x760'); root.minsize(760,500); self.pages=[]; self.paragraphs=[]; self.page=0; self.index=0; self.stop_event=threading.Event(); self.player=None; self.engine=AavaEngine(); self.events=queue.Queue(); self.zoom=14; self._build(); root.after(100,self._poll)
+        self.root=root; root.title('آواخوان — کتابخوان حرفه‌ای فارسی'); root.geometry('1180x760'); root.minsize(760,500); self.pages=[]; self.paragraphs=[]; self.page=0; self.index=0; self.stop_event=threading.Event(); self.player=None; self.engine=AavaEngine(); self.ffmpeg=FFmpegRuntime(); self.events=queue.Queue(); self.zoom=14; self._build(); root.after(100,self._poll)
     def _build(self):
         bar=ttk.Frame(self.root,padding=7); bar.pack(fill='x');
         for label,cmd in [('باز کردن PDF',self.open_pdf),('قبلی',lambda:self.move(-1)),('بعدی',lambda:self.move(1)),('پخش',self.play),('توقف',self.stop),('دانلود/بررسی مدل',self.prepare_model)]: ttk.Button(bar,text=label,command=cmd).pack(side='right',padx=3)
@@ -106,8 +145,8 @@ class ReaderApp:
                 with tempfile.NamedTemporaryFile(suffix='.wav',delete=False) as f: audio=Path(f.name)
                 self.engine.synthesize(text,audio,lambda s:self.events.put(('status',s)))
                 if self.stop_event.is_set(): audio.unlink(missing_ok=True); return
-                if not shutil.which('ffplay'): raise RuntimeError('ffplay نصب نیست؛ بسته ffmpeg را نصب کنید.')
-                self.player=subprocess.Popen(['ffplay','-nodisp','-autoexit','-loglevel','quiet',str(audio)]); self.player.wait(); self.player=None; audio.unlink(missing_ok=True)
+                player=self.ffmpeg.ensure(lambda s:self.events.put(('status',s)))
+                self.player=subprocess.Popen([str(player),'-nodisp','-autoexit','-loglevel','quiet',str(audio)]); self.player.wait(); self.player=None; audio.unlink(missing_ok=True)
             except Exception as e:self.events.put(('error',str(e))); return
             if not self.repeat.get(): self.index+=1
             if self.index>=len(self.paragraphs): self.events.put(('status','خواندن تمام شد')); return
@@ -129,7 +168,7 @@ def self_test():
     import ast
     ast.parse(Path(__file__).read_text(encoding='utf-8'))
     import fitz
-    if not shutil.which('ffplay'): raise RuntimeError('ffplay/ffmpeg پیدا نشد')
+    FFmpegRuntime().locate()
     print('aava-pdf-reader self-test: OK')
 
 def main():
