@@ -1,8 +1,21 @@
-# آواخوان — PDF Reader فارسی برای لینوکس
+# آواخوان — کتابخوان حرفه‌ای فارسی با هوش مصنوعی
 
-نسخه‌ی نهایی این پروژه با **Python + Tkinter** ساخته شده است. متن PDF با PyMuPDF استخراج می‌شود، پاراگراف فعال با Highlight نمایش داده می‌شود و مدل `KEYHAN-A/aava-tts-persian-3b` متن فارسی را به گفتار تبدیل می‌کند. مدل فقط یک‌بار در حافظه Load می‌شود و پاراگراف‌ها را پشت‌سرهم می‌خواند.
+نسخه‌ی Linux این پروژه با **Python + Tkinter + PyMuPDF** ساخته شده است. کتابخوان متن PDF فارسی را استخراج و نمایش می‌دهد، صفحه و پاراگراف را تشخیص می‌دهد، پاراگراف فعال را Highlight می‌کند و با مدل رسمی `KEYHAN-A/aava-tts-persian-3b` می‌خواند.
 
-> توجه: مدل Aava، **TTS (تبدیل متن به گفتار)** است، نه STT.
+> مدل Aava از نوع **TTS (تبدیل متن به گفتار)** است، نه گفتار به متن. مدل حدود ۷٫۶GB حجم دارد و برای اجرای CPU به RAM و زمان زیادی نیاز دارد؛ CUDA توصیه می‌شود.
+
+## قابلیت‌ها
+
+- نمایش متن کامل PDF با اسکرول و صفحه‌بندی متنی
+- تشخیص صفحه و پاراگراف و نمایش شماره‌ی آن‌ها
+- Highlight خودکار پاراگراف در حال خواندن
+- پخش، توقف، قبلی، بعدی و تکرار پاراگراف
+- جست‌وجوی متن فارسی و Highlight نتایج
+- بزرگ‌نمایی و کوچک‌نمایی متن
+- بارگذاری یک‌باره‌ی مدل در حافظه برای همه‌ی پاراگراف‌ها
+- دانلود خودکار مدل از Hugging Face با دکمه‌ی «دانلود/بررسی مدل» یا در اولین پخش
+- انتخاب مسیر مدل با متغیر `AAVA_MODEL`
+- انتخاب خودکار CUDA یا CPU
 
 ## نصب Ubuntu/Debian
 
@@ -13,27 +26,37 @@ cd desktop/pdf-reader
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install torch transformers snac soundfile numpy PyMuPDF huggingface_hub
+pip install -r requirements.txt
+# torch را مطابق سیستم CPU/CUDA از راهنمای رسمی نصب کنید:
+# https://pytorch.org/get-started/locally/
+pip install torch
 ```
-
-برای GPU، نسخه‌ی مناسب PyTorch را طبق [راهنمای رسمی PyTorch](https://pytorch.org/get-started/locally/) نصب کنید.
 
 ## دانلود مدل
 
+برنامه در صورت نبود مدل، خودش آن را دانلود می‌کند. برای دانلود دستی و کنترل بهتر:
+
 ```bash
+source .venv/bin/activate
 huggingface-cli download KEYHAN-A/aava-tts-persian-3b \
   --local-dir "$HOME/.cache/huggingface/models/KEYHAN-A/aava-tts-persian-3b"
 
 huggingface-cli download hubertsiuzdak/snac_24khz
 ```
 
-مسیر پیش‌فرض برنامه همین مسیر است. برای مسیر دلخواه:
+مسیر پیش‌فرض لینوکس:
+
+```text
+~/.cache/huggingface/models/KEYHAN-A/aava-tts-persian-3b
+```
+
+برای مسیر دلخواه:
 
 ```bash
 export AAVA_MODEL=/path/to/aava-tts-persian-3b
 ```
 
-در ویندوز نیز می‌توانید از مسیر زیر استفاده کنید:
+مسیر ویندوزی موردنظر شما نیز با همین متغیر قابل استفاده است:
 
 ```text
 C:\Users\amire\.cache\huggingface\models\KEYHAN-A\aava-tts-persian-3b
@@ -53,15 +76,15 @@ AAVA_PYTHON="$PWD/.venv/bin/python" ./run-linux.sh
 .venv/bin/python pdf_reader.py
 ```
 
-سپس **باز کردن PDF** را بزنید. با **پخش / خواندن**، برنامه مدل را Load می‌کند، پاراگراف فعلی را به WAV تبدیل می‌کند و با ffplay پخش می‌کند. مدل ۳B حدود ۷٫۶GB است؛ اجرای CPU به RAM زیاد و زمان بیشتری نیاز دارد و CUDA توصیه می‌شود.
+بعد از اجرا، PDF را با **باز کردن PDF** انتخاب کنید. برای آماده‌سازی مدل دکمه‌ی **دانلود/بررسی مدل** را بزنید یا مستقیماً **پخش** را انتخاب کنید. دانلود اولیه ممکن است چند دقیقه طول بکشد.
 
-## امکانات
+## تست
 
-- نمایش متن فارسی PDF با اسکرول و راست‌خوانی مناسب متن
-- تشخیص پاراگراف بر اساس خطوط خالی و Highlight پاراگراف فعال
-- خواندن خودکار پاراگراف به پاراگراف
-- پخش، توقف، قبلی، بعدی و تکرار پاراگراف
-- Load یک‌باره‌ی مدل برای جلوگیری از بارگذاری مجدد در هر پاراگراف
-- پشتیبانی از مسیر مدل محلی Hugging Face با `AAVA_MODEL`
+تست‌های سبک بدون نیاز به GUI یا مدل سنگین:
 
-PDFهای اسکن‌شده که لایه‌ی متنی ندارند نیازمند OCR هستند و در این نسخه متن قابل استخراج نمایش داده می‌شود.
+```bash
+python3 -m py_compile pdf_reader.py test_reader.py
+python3 test_reader.py
+```
+
+PDFهای اسکن‌شده که لایه‌ی متنی ندارند، به OCR نیاز دارند. این نسخه برای PDFهای دارای متن طراحی شده است؛ افزودن OCR با Tesseract می‌تواند مرحله‌ی بعدی پروژه باشد.
